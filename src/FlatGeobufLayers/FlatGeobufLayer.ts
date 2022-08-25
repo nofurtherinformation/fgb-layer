@@ -4,10 +4,10 @@ import {
   Layer,
   UpdateParameters,
 } from "@deck.gl/core/typed";
-import { GeoJsonLayer, ScatterplotLayer } from "@deck.gl/layers/typed";
+// import { GeoJsonLayer, ScatterplotLayer } from "@deck.gl/layers/typed";
 import { wrap } from "comlink";
 // @ts-ignore
-import debounce from "lodash.debounce";
+// import debounce from "lodash.debounce";
 const FgbWorker = wrap(new Worker(new URL("./fgbWorker", import.meta.url)));
 // import BezierCurveLayer from './bezier-curve-layer/bezier-curve-layer';
 

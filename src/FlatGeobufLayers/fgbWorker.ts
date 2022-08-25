@@ -5,9 +5,9 @@ import {geojsonToBinary} from '@loaders.gl/gis';
 const { deserialize } = fgb;
 
 class FgbWorker {
-    constructor(){
+    // constructor(){
 
-    }
+    // }
     async getFgbData(path: string, bounds: any){
         let iter = deserialize(path, bounds);
         let features = [];
