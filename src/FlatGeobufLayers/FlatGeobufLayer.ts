@@ -13,7 +13,11 @@ const FgbWorker = wrap(new Worker(new URL("./fgbWorker", import.meta.url)));
 
 class FlatGeobufLayer extends CompositeLayer {
   shouldUpdateState(
-    params: UpdateParameters<Layer<Required<CompositeLayerProps<any>>>>
+    params: UpdateParameters<Layer<Required<CompositeLayerProps<{
+        fgbUrl: string;
+        useBinaryGeojson: boolean;
+        rendersubLayers: (data: any, viewport: any) => any;
+    }>>>>
   ): boolean {
     return params.changeFlags.somethingChanged;
   }
@@ -68,8 +72,10 @@ class FlatGeobufLayer extends CompositeLayer {
       maxX: number;
     }
   ): Promise<any> {
+      // @ts-ignore
+      const { useBinaryGeojson } = this.props;
     // @ts-ignore
-    const data = await FgbWorker.getFgbData(path, bounds);
+    const data = await FgbWorker.getFgbData(path, bounds, useBinaryGeojson);
     this.setState({data})
   }
 
@@ -77,10 +83,10 @@ class FlatGeobufLayer extends CompositeLayer {
     // @ts-ignore
     const { renderSubLayers } = this.props;
     const { data } = this.state;
-
     return [
       renderSubLayers({
         data,
+        viewport: this.context.viewport
       }),
     ];
   }

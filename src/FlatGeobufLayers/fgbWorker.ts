@@ -8,14 +8,18 @@ class FgbWorker {
     // constructor(){
 
     // }
-    async getFgbData(path: string, bounds: any){
+    async getFgbData(path: string, bounds: any, useBinaryGeojson: boolean = false): Promise<any> {
         let iter = deserialize(path, bounds);
         let features = [];
         // @ts-ignore
         for await (let feature of iter) {
             features.push(feature);
         }
-        return geojsonToBinary(features)
+        if (useBinaryGeojson) {
+            return geojsonToBinary(features)
+        } else {
+            return features;
+        }
     }
 }
 
