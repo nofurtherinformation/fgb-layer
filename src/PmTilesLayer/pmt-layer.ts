@@ -16,7 +16,7 @@ import { binaryToGeojson } from "@loaders.gl/gis";
 import { ClipExtension } from "@deck.gl/extensions/typed";
 import { GeojsonGeometryInfo } from "@loaders.gl/schema";
 import { MVTWorkerLoader } from "@loaders.gl/mvt";
-
+import {MVTLoader} from "@loaders.gl/mvt";
 import type { Loader } from "@loaders.gl/loader-utils";
 import type { BinaryFeatures } from "@loaders.gl/schema";
 import type { Feature } from "geojson";
@@ -191,8 +191,8 @@ export default class PmTilesLayer<
     return super.renderLayers();
   }
   getTileData(loadProps: TileLoadProps): Promise<ParsedPmTile> {
-    const { pmtilesUrl, binary } = this.state;
-    const { index, signal } = loadProps;
+    // const { pmtilesUrl, binary } = this.state;
+    const { index } = loadProps;
     if (!index) return Promise.reject(new Error("No index"));
     const { x, y, z } = index;
 
@@ -205,44 +205,16 @@ export default class PmTilesLayer<
         data = decompressSync(data);
       }
       let view = new DataView(data.buffer);
-
-      let tile = new VectorTile(
-        new Protobuf(
-          new Uint8Array(view.buffer, view.byteOffset, view.byteLength)
-        )
-      );
-      let features: Feature[] = [];
-      for (let [name, layer] of Object.entries(tile.layers)) {
-        for (var i = 0; i < layer.length; i++) {
-          let feature = layer.feature(i);
-          let geom = feature.loadGeometry().map(o => o.map(g => Object.values(g)));
-          let tempFeature = {
-            id: feature.id,
-            properties: feature.properties,
-            layerName: name,
-            type: "Feature",
-          }
-          if (geom.length > 0) {
-            switch (feature.type) {
-              case 1: // Point
-                tempFeature.geometry = {type: 'Point', coordinates: geom};
-                break;
-        
-              case 2: // LineString
-                tempFeature.geometry = {type: 'LineString', coordinates: geom};
-                break;
-        
-              case 3: // Polygon
-                tempFeature.geometry = {type: 'Polygon', coordinates: geom};
-                break;
-              default:
-                throw new Error(`Invalid geometry type: ${this.type}`);
-            }
-            features.push(tempFeature);
-          }
+      const features = await MVTLoader.parse(new Uint8Array(view.buffer, view.byteOffset, view.byteLength), {
+        mvt: {
+          shape: 'binary',
+          coordinates: 'wgs84',
+          layerProperty: 'layerName',
+          layers: undefined,
+          tileIndex: {x,y,z}
         }
-        return features;
-      }
+      })
+      return features;
     };
     return getData();
   }
@@ -256,6 +228,8 @@ export default class PmTilesLayer<
     }
   ): Layer | null | LayersList {
     const { x, y, z } = props.tile.index;
+    const bbox = props?.tile?.bbox;
+    const {east,west,north,south} = bbox||{};
     const worldScale = Math.pow(2, z);
 
     const xScale = WORLD_SIZE / worldScale;
@@ -272,7 +246,8 @@ export default class PmTilesLayer<
       props.modelMatrix = modelMatrix;
       props.coordinateOrigin = [xOffset, yOffset, 0];
       props.coordinateSystem = COORDINATE_SYSTEM.CARTESIAN;
-      // props.extensions = [...(props.extensions || []), new ClipExtension()];
+      props.extensions = [...(props.extensions || []), new ClipExtension()];
+      props.clipBounds = [west, south, east, north];
     }
 
     const subLayers = super.renderSubLayers(props);
@@ -844,7 +819,6 @@ function getDecodedFeatureBinary(
   options: MVTOptions,
   layerName: string
 ): FlatFeature {
-  console.log(feature);
   const decodedFeature = feature.toBinaryCoordinates(
     options.coordinates === "wgs84"
       ? options.tileIndex

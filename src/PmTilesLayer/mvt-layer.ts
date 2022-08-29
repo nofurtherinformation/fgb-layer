@@ -198,7 +198,8 @@ import {
         mvt: {
           ...loadOptions?.mvt,
           coordinates: this.context.viewport.resolution ? 'wgs84' : 'local',
-          tileIndex: index
+          tileIndex: index,
+          shape: 'geojson'
           // Local worker debug
           // workerUrl: `modules/mvt/dist/mvt-loader.worker.js`
           // Set worker to null to skip web workers
@@ -241,7 +242,6 @@ import {
       }
   
       const subLayers = super.renderSubLayers(props);
-  
       if (this.state.binary && !(subLayers instanceof GeoJsonLayer)) {
         log.warn('renderSubLayers() must return GeoJsonLayer when using binary:true')();
       }
