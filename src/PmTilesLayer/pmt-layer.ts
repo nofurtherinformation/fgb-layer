@@ -14,7 +14,7 @@ import { GeoJsonLayer, GeoJsonLayerProps } from "@deck.gl/layers/typed";
 import { Matrix4 } from "@math.gl/core";
 import { binaryToGeojson } from "@loaders.gl/gis";
 import { ClipExtension } from "@deck.gl/extensions/typed";
-import { GeojsonGeometryInfo } from "@loaders.gl/schema";
+// import { GeojsonGeometryInfo } from "@loaders.gl/schema";
 import { MVTWorkerLoader } from "@loaders.gl/mvt";
 import {MVTLoader} from "@loaders.gl/mvt";
 import type { Loader } from "@loaders.gl/loader-utils";
@@ -27,17 +27,17 @@ import TileLayer, {
 } from "../tile-layer/tile-layer";
 import Tileset2D, { Tileset2DProps } from "../tile-layer/tileset-2d";
 import {
-  getURLFromTemplate,
+  // getURLFromTemplate,
   isGeoBoundingBox,
-  isURLTemplate,
+  // isURLTemplate,
 } from "../tile-layer/utils";
 import { GeoBoundingBox, TileLoadProps } from "../tile-layer/types";
 import Tile2DHeader from "../tile-layer/tile-2d-header";
 import { transform } from "./coordinate-transform";
 import findIndexBinary from "./find-index-binary";
 import { PMTiles } from "pmtiles";
-import Protobuf from "pbf";
-import { VectorTile, VectorTileFeature } from "@mapbox/vector-tile";
+// import Protobuf from "pbf";
+// import { VectorTile, VectorTileFeature } from "@mapbox/vector-tile";
 import { decompressSync } from "fflate";
 
 const WORLD_SIZE = 512;
@@ -115,7 +115,7 @@ export default class PmTilesLayer<
         ? false
         : this.props.binary;
     this.setState({
-      binary: false,
+      binary: binary,
       data: null,
       tileJSON: null,
       pmtilesUrl: this.props.pmtilesUrl,
@@ -201,7 +201,7 @@ export default class PmTilesLayer<
       if (!val) return null;
       const arr = await this.PMTiles!.source.getBytes(val.offset, val.length);
       let data = new Uint8Array(arr.buffer);
-      if (data[0] == 0x1f && data[1] == 0x8b) {
+      if (data[0] === 0x1f && data[1] === 0x8b) {
         data = decompressSync(data);
       }
       let view = new DataView(data.buffer);

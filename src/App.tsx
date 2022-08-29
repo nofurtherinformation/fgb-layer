@@ -1,11 +1,10 @@
-import React from 'react';
+import React from 'react'; // eslint-disable-line no-unused-vars
 import DeckGL from '@deck.gl/react/typed';
 import { BitmapLayer, GeoJsonLayer } from '@deck.gl/layers/typed';
 import { TileLayer } from '@deck.gl/geo-layers/typed';
-import FlatGeobufLayer from './FlatGeobufLayers/FlatGeobufLayer';
 import PmTilesLayer from './PmTilesLayer/pmt-layer';
-import MVTLayer from './PmTilesLayer/mvt-layer';
-import { ClipExtension } from "@deck.gl/extensions/typed";
+import FlatGeobufLayer from './FlatGeobufLayers/FlatGeobufLayer'; // eslint-disable-line @typescript-eslint/no-unused-vars
+import MVTLayer from './PmTilesLayer/mvt-layer'; // eslint-disable-line @typescript-eslint/no-unused-vars
 
 const INITIAL_VIEW_STATE = {
   longitude: -122.41669,
@@ -16,10 +15,7 @@ const INITIAL_VIEW_STATE = {
 }
 
 export default function App() {
-  // const [viewState, setViewState] = React.useState();
-
   const layers = [
-
     new TileLayer({
       data: 'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png',
       minZoom: 0,
@@ -85,7 +81,7 @@ export default function App() {
     //       data,
     //       filled: true,
     //       getFillColor: [255, 255, 0],
-    //       pointRadiusMinPixels: 4,
+    //       pointRadiusMinPixels: 2,
     //       id: 'fgb-geojson'
     //     })
 
