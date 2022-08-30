@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-// adapted from 
+// adapted from
 // https://github.com/visgl/deck.gl/blob/master/modules/geo-layers/src/mvt-layer/mvt-layer.ts
 // @ts-nocheck
 import {
@@ -38,7 +38,7 @@ import { binaryToGeojson } from "@loaders.gl/gis";
 import { ClipExtension } from "@deck.gl/extensions/typed";
 // import { GeojsonGeometryInfo } from "@loaders.gl/schema";
 import { MVTWorkerLoader } from "@loaders.gl/mvt";
-import {MVTLoader} from "@loaders.gl/mvt";
+import { MVTLoader } from "@loaders.gl/mvt";
 import type { Loader } from "@loaders.gl/loader-utils";
 import type { BinaryFeatures } from "@loaders.gl/schema";
 import type { Feature } from "geojson";
@@ -213,29 +213,27 @@ export default class PmTilesLayer<
     return super.renderLayers();
   }
   getTileData(loadProps: TileLoadProps): Promise<ParsedPmTile> {
+    // in future, binary vs geojson output like mvt
     // const { pmtilesUrl, binary } = this.state;
     const { index } = loadProps;
-    const { data } = this.props;
     if (!index) return Promise.reject(new Error("No index"));
     const { x, y, z } = index;
-    const hash = `${data}/${z}/${x}/${y}`;
+    // for caching?
+    // const hash = `${data}/${z}/${x}/${y}`;
     // adapted from https://github.com/protomaps/PMTiles
     // Copyright 2021 Protomaps LLC
     // BSD 3-Clause "New" or "Revised" License
     return this.PMTiles.getZxy(z, x, y)
-      .then(val => {
-        if (!val) {
-          return null
-        } else {
-          return this.PMTiles!.source.getBytes(val.offset, val.length);
-        }
-      }).then(arr => {
-        if (!arr) {
-          return null
-        } else {
-          return ParsePmTiles(arr, x,y, z)
-        }
-      })
+      .then((val) =>
+        val 
+          ? this.PMTiles!.source.getBytes(val.offset, val.length) 
+          : null
+      )
+      .then((arr) => 
+        arr 
+          ? ParsePmTiles(arr, x, y, z) 
+          : null
+      );
   }
 
   renderSubLayers(
@@ -248,7 +246,7 @@ export default class PmTilesLayer<
   ): Layer | null | LayersList {
     const { x, y, z } = props.tile.index;
     const bbox = props?.tile?.bbox;
-    const {east,west,north,south} = bbox||{};
+    const { east, west, north, south } = bbox || {};
     const worldScale = Math.pow(2, z);
 
     const xScale = WORLD_SIZE / worldScale;
@@ -510,20 +508,28 @@ function transformTileCoordsToWGS84(
   return feature as Feature;
 }
 
-async function ParsePmTiles(arr: ArrayBuffer, x: number, y:number, z:number): ParsedPmTile {
-  const data = new Uint8Array(arr.buffer)
+async function ParsePmTiles(
+  arr: ArrayBuffer,
+  x: number,
+  y: number,
+  z: number
+): ParsedPmTile {
+  const data = new Uint8Array(arr.buffer);
   if (data[0] === 0x1f && data[1] === 0x8b) {
     data = decompressSync(data);
   }
   let view = new DataView(data.buffer);
-  const features = await MVTLoader.parse(new Uint8Array(view.buffer, view.byteOffset, view.byteLength), {
-    mvt: {
-      shape: 'binary',
-      coordinates: 'wgs84',
-      layerProperty: 'layerName',
-      layers: undefined,
-      tileIndex: {x,y,z}
+  const features = await MVTLoader.parse(
+    new Uint8Array(view.buffer, view.byteOffset, view.byteLength),
+    {
+      mvt: {
+        shape: "binary",
+        coordinates: "wgs84",
+        layerProperty: "layerName",
+        layers: undefined,
+        tileIndex: { x, y, z },
+      },
     }
-  })
+  );
   return features;
 }
