@@ -59,6 +59,10 @@ export default function App() {
       id: 'pmtiles-layer',
       data:`${process.env.PUBLIC_URL}/zip.pmtiles`,
       // @ts-ignore
+      onClick: (info) => {
+        console.log(info)
+      },
+      // @ts-ignore
       renderSubLayers: ({data, id, extensions, clipBounds}) => {
         return new GeoJsonLayer({
           id: 'geojson-layer' + id,
@@ -66,6 +70,7 @@ export default function App() {
           data,
           // @ts-ignore
           getFillColor: f => [255, 0, 0, Math.max(50, Math.min(255, f.properties.AWATER10 / 50000))],
+          pickable: true,
           clipBounds,
           extensions
         })
