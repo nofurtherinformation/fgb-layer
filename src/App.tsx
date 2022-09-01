@@ -57,7 +57,7 @@ export default function App() {
     // @ts-ignore/
     new PmTilesLayer({
       id: 'pmtiles-layer',
-      data:`${process.env.PUBLIC_URL}/zip.pmtiles`,
+      data:`https://matico.s3.us-east-2.amazonaws.com/census/block_groups.pmtiles`,
       // @ts-ignore
       onClick: (info) => {
         console.log(info)
@@ -68,8 +68,10 @@ export default function App() {
           id: 'geojson-layer' + id,
           // @ts-ignore
           data,
-          // @ts-ignore
-          getFillColor: f => [255, 0, 0, Math.max(50, Math.min(255, f.properties.AWATER10 / 50000))],
+          getFillColor: [255,255,255],
+          getLineColor: [0,0,0],
+          stroked: true,
+          lineWidthMinPixels: 1,
           pickable: true,
           clipBounds,
           extensions
