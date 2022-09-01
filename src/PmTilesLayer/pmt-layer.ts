@@ -514,7 +514,7 @@ async function ParsePmTiles(
   y: number,
   z: number
 ): ParsedPmTile {
-  const data = new Uint8Array(arr.buffer);
+  let data = new Uint8Array(arr.buffer);
   if (data[0] === 0x1f && data[1] === 0x8b) {
     data = decompressSync(data);
   }
